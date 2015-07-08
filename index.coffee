@@ -1,4 +1,3 @@
-mqtt = require 'mqtt'
 
 #
 # conf =
@@ -6,15 +5,14 @@ mqtt = require 'mqtt'
 #   subscriptions: []
 #
 
-MqttHandler = (conf) ->
+MqttHandler = (conf, conn) ->
   self = this
   self.conf = conf
+  self.client = conn
+
   self.handlers =
     default: (topic, message) ->
       console.log 'unable to find handler, using default for', topic, message.toString()
-
-  # Establish connection
-  self.client = mqtt.connect conf.host
 
   self.client.on 'connect', ->
     self.client.subscribe conf.subscriptions

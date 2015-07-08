@@ -1,10 +1,12 @@
 Handler = require '../index'
+mqtt = require 'mqtt'
 
 conf =
   subscriptions: ['presence', 'foo', 'bar']
-  host: 'mqtt://test.mosquitto.org'
 
-handler = new Handler(conf)
+conn = mqtt.connect 'mqtt://test.mosquitto.org'
+
+handler = new Handler(conf, conn)
 
 handler.register 'presence', (topic, message) ->
   console.log topic, message.toString()
