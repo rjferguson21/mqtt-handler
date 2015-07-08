@@ -1,7 +1,7 @@
 Handler = require '../index'
 
 conf =
-  subscriptions: ['presence', 'foo']
+  subscriptions: ['presence', 'foo', 'bar']
   host: 'mqtt://test.mosquitto.org'
 
 handler = new Handler(conf)

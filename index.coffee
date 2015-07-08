@@ -9,7 +9,9 @@ mqtt = require 'mqtt'
 MqttHandler = (conf) ->
   self = this
   self.conf = conf
-  self.handlers = {}
+  self.handlers =
+    default: (topic, message) ->
+      console.log 'unable to find handler, using default for', topic, message.toString()
 
   # Establish connection
   self.client = mqtt.connect conf.host
@@ -18,9 +20,13 @@ MqttHandler = (conf) ->
     self.client.subscribe conf.subscriptions
 
   self.client.on 'message', (topic, message) ->
-    self.handlers[topic]?(topic, message)
+    self.fetch(topic.split('/')[0])(topic, message)
 
   return this
+
+MqttHandler::fetch = (topic) ->
+  return this.handlers[topic] if this.handlers[topic]?
+  return this.handlers['default']
 
 MqttHandler::register = (topic, fn) ->
   this.handlers[topic] = fn
