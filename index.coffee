@@ -1,9 +1,10 @@
-
+_ = require 'lodash'
 #
 # conf =
-#   host: 10.10.1.1
 #   subscriptions: []
-#
+
+matches = (needle, haystack) ->
+  return haystack.indexOf(needle) > -1
 
 MqttHandler = (conf, conn) ->
   self = this
@@ -18,13 +19,21 @@ MqttHandler = (conf, conn) ->
     self.client.subscribe conf.subscriptions
 
   self.client.on 'message', (topic, message) ->
-    self.fetch(topic.split('/')[0])(topic, message)
+    self.fetch(topic)
+    .forEach (fn) ->
+      fn(topic, message)
 
   return this
 
 MqttHandler::fetch = (topic) ->
-  return this.handlers[topic] if this.handlers[topic]?
-  return this.handlers['default']
+  self = this
+  handlers = _.filter(_.keys(self.handlers), (pattern) ->
+    return matches pattern, topic
+  ).map (key) ->
+    self.handlers[key]
+
+  return handlers if handlers.length?
+  return self.handlers['default']
 
 MqttHandler::register = (topic, fn) ->
   this.handlers[topic] = fn
